@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { Product } from "@/types"
 import { Eye, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AddToCartButton } from "@/components/add-to-cart-button"
 
 interface ProductCardProps {
     product: Product
@@ -28,9 +29,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
                 {/* Overlay Actions */}
                 <div className="absolute inset-x-0 bottom-4 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2 justify-center">
-                    <Button size="sm" className="w-full bg-white text-black hover:bg-white/90 shadow-sm backdrop-blur-sm">
-                        Quick View
-                    </Button>
+                    <AddToCartButton
+                        product={{
+                            id: product.id,
+                            name: product.name,
+                            price: Number(product.price),
+                            image_url: product.image_url || "",
+                        }}
+                        size="sm"
+                        className="w-full bg-white text-black hover:bg-white/90 shadow-sm backdrop-blur-sm"
+                        text="কার্টে যোগ করুন" // "Add to Cart"
+                        showIcon={true}
+                    />
                 </div>
 
                 {/* Badges */}

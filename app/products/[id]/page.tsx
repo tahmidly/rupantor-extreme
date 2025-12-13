@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getProductById } from "@/lib/db"
 import { ArrowLeft, Package, Truck, ShieldCheck, Heart, Share2 } from "lucide-react"
+import { AddToCartButton } from "@/components/add-to-cart-button"
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -102,9 +103,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
                         {/* Actions */}
                         <div className="space-y-4 pt-4">
-                            <Button size="lg" className="w-full h-14 text-lg rounded-full" disabled={product.stock === 0}>
-                                {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                            </Button>
+                            <AddToCartButton
+                                product={{
+                                    id: product.id,
+                                    name: product.name,
+                                    price: Number(product.price),
+                                    image_url: product.image_url || "",
+                                }}
+                                size="lg"
+                                className="w-full h-14 text-lg rounded-full"
+                                disabled={product.stock === 0}
+                                text={product.stock > 0 ? "কার্টে যোগ করুন" : "স্টক শেষ"} // "Add to Cart" : "Out of Stock"
+                                showIcon={true}
+                            />
 
                             <div className="grid grid-cols-2 gap-4">
                                 <Button variant="outline" size="lg" className="w-full rounded-full">

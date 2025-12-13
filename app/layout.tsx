@@ -4,6 +4,8 @@ import { Noto_Sans_Bengali, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/components/auth-provider"
+import { CartProvider } from "@/components/cart-provider"
+import { Toaster } from "sonner"
 
 const notoSansBengali = Noto_Sans_Bengali({
     subsets: ["bengali", "latin"],
@@ -42,7 +44,12 @@ export default function RootLayout({
     return (
         <html lang="bn">
             <body className={`${notoSansBengali.variable} font-sans antialiased`}>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                    <CartProvider>
+                        {children}
+                        <Toaster position="bottom-right" richColors />
+                    </CartProvider>
+                </AuthProvider>
                 <Analytics />
             </body>
         </html>

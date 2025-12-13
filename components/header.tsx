@@ -4,6 +4,7 @@ import type React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "./auth-provider"
+import { useCart } from "@/components/cart-provider"
 import { Button } from "@/components/ui/button"
 import { Search, ShoppingCart, User, LogOut, Menu, X } from "lucide-react"
 import { useState } from "react"
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Header() {
     const { user, signOut } = useAuth()
+    const { cartCount } = useCart()
     const [searchQuery, setSearchQuery] = useState("")
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const router = useRouter()
@@ -94,7 +96,11 @@ export function Header() {
                     <Link href="/cart">
                         <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
                             <ShoppingCart className="h-5 w-5" />
-                            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">0</span>
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
+                                    {cartCount}
+                                </span>
+                            )}
                         </Button>
                     </Link>
 
