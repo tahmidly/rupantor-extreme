@@ -3,114 +3,133 @@ import Image from "next/image"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getProductById } from "@/lib/db"
-import { ArrowLeft, Package } from "lucide-react"
+import { ArrowLeft, Package, Truck, ShieldCheck, Heart, Share2 } from "lucide-react"
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const product = await getProductById(id)
+    const { id } = await params
+    const product = await getProductById(id)
 
-  if (!product) {
-    notFound()
-  }
+    if (!product) {
+        notFound()
+    }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-rose-50/20">
-      <Header />
+    return (
+        <div className="min-h-screen bg-background text-foreground">
+            <Header />
 
-      <main className="container py-8">
-        <Button variant="ghost" asChild className="mb-6">
-          <Link href="/">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            পিছনে ফিরুন
-          </Link>
-        </Button>
+            <main className="container mx-auto px-4 py-8">
+                {/* Breadcrumb / Back Navigation */}
+                <div className="mb-8">
+                    <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors group">
+                        <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                        Back to Shop
+                    </Link>
+                </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Product Image */}
-          <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-            {product.image_url ? (
-              <Image
-                src={product.image_url || "/placeholder.svg"}
-                alt={product.name}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-rose-100 to-pink-100">
-                <Package className="h-32 w-32 text-rose-300" />
-              </div>
-            )}
-          </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    {/* Product Image Gallery (Left) */}
+                    <div className="lg:col-span-7 space-y-4">
+                        <div className="relative aspect-square md:aspect-[4/5] w-full overflow-hidden rounded-lg bg-muted">
+                            {product.image_url ? (
+                                <Image
+                                    src={product.image_url}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                    sizes="(max-width: 768px) 100vw, 60vw"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
+                                    <Package className="h-24 w-24 opacity-20" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-          {/* Product Details */}
-          <div className="flex flex-col gap-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2 text-balance">
-                {product.name_bengali || product.name}
-              </h1>
-              {product.name_bengali && <p className="text-lg text-muted-foreground">{product.name}</p>}
-            </div>
+                    {/* Product Details (Right) */}
+                    <div className="lg:col-span-5 lg:sticky lg:top-24 h-fit space-y-8">
+                        {/* Header Info */}
+                        <div className="space-y-4">
+                            {product.category && (
+                                <p className="text-sm font-medium tracking-widest uppercase text-muted-foreground">
+                                    {product.category}
+                                </p>
+                            )}
+                            <h1 className="text-4xl font-serif font-medium leading-tight">
+                                {product.name}
+                            </h1>
+                            {product.name_bengali && (
+                                <p className="text-xl text-muted-foreground font-light">{product.name_bengali}</p>
+                            )}
 
-            <div className="flex items-center gap-4">
-              <p className="text-4xl font-bold text-rose-500">৳{product.price.toFixed(2)}</p>
-              {product.stock > 0 ? (
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  স্টকে আছে ({product.stock} টি)
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-red-100 text-red-700">
-                  স্টক শেষ
-                </Badge>
-              )}
-            </div>
+                            <div className="flex items-baseline gap-4 pt-2">
+                                <span className="text-3xl font-bold">৳{Number(product.price).toFixed(2)}</span>
+                                <span className="text-lg text-muted-foreground line-through decoration-muted-foreground/50">
+                                    ৳{Math.round(Number(product.price) * 1.2).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
 
-            {product.category && (
-              <div>
-                <span className="text-sm text-muted-foreground">ক্যাটাগরি: </span>
-                <Badge variant="outline">{product.category}</Badge>
-              </div>
-            )}
+                        {/* Stock Status */}
+                        <div>
+                            {product.stock > 0 ? (
+                                <div className="inline-flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1 rounded-full text-sm font-medium">
+                                    <div className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
+                                    In Stock ({product.stock} available)
+                                </div>
+                            ) : (
+                                <div className="inline-flex items-center gap-2 text-red-600 bg-red-50 px-3 py-1 rounded-full text-sm font-medium">
+                                    <div className="h-2 w-2 rounded-full bg-red-600" />
+                                    Out of Stock
+                                </div>
+                            )}
+                        </div>
 
-            {(product.description_bengali || product.description) && (
-              <Card>
-                <CardContent className="pt-6">
-                  <h2 className="text-xl font-semibold mb-3">বিবরণ</h2>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {product.description_bengali || product.description}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+                        {/* Description */}
+                        <div className="prose prose-stone text-muted-foreground">
+                            <p className="leading-relaxed whitespace-pre-line">
+                                {product.description}
+                            </p>
+                            {product.description_bengali && (
+                                <p className="leading-relaxed whitespace-pre-line mt-4 pt-4 border-t border-dashed">
+                                    {product.description_bengali}
+                                </p>
+                            )}
+                        </div>
 
-            <div className="flex gap-3">
-              <Button size="lg" className="flex-1" disabled={product.stock === 0}>
-                {product.stock > 0 ? "অর্ডার করুন" : "স্টক শেষ"}
-              </Button>
-            </div>
+                        {/* Actions */}
+                        <div className="space-y-4 pt-4">
+                            <Button size="lg" className="w-full h-14 text-lg rounded-full" disabled={product.stock === 0}>
+                                {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                            </Button>
 
-            {/* Product Info */}
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-3">পণ্যের তথ্য</h3>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">পণ্য আইডি:</dt>
-                    <dd className="font-mono text-xs">{product.id}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">যোগ করা হয়েছে:</dt>
-                    <dd>{new Date(product.created_at).toLocaleDateString("bn-BD")}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
-          </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Button variant="outline" size="lg" className="w-full rounded-full">
+                                    <Heart className="h-4 w-4 mr-2" /> Wishlist
+                                </Button>
+                                <Button variant="outline" size="lg" className="w-full rounded-full">
+                                    <Share2 className="h-4 w-4 mr-2" /> Share
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Features / Assurance */}
+                        <div className="grid grid-cols-1 gap-4 pt-8 border-t">
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <Truck className="h-5 w-5 text-foreground" />
+                                <span>Free shipping on orders over ৳2000</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <ShieldCheck className="h-5 w-5 text-foreground" />
+                                <span>100% Authentic & Quality Guaranteed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-      </main>
-    </div>
-  )
+    )
 }
