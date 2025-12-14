@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { ProductManagement } from "@/components/admin/product-management"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -15,9 +15,17 @@ export default function DashboardPage() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
 
+    useEffect(() => {
+        const session = localStorage.getItem("admin_session")
+        if (session === "true") {
+            setIsLoggedIn(true)
+        }
+    }, [])
+
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault()
         if (username === "admin" && password === "admin123") {
+            localStorage.setItem("admin_session", "true")
             setIsLoggedIn(true)
             setError("")
         } else {
@@ -77,7 +85,10 @@ export default function DashboardPage() {
                         <h1 className="text-3xl font-bold mb-2 text-gray-800">অ্যাডমিন ড্যাশবোর্ড</h1>
                         <p className="text-muted-foreground">স্বাগতম, অ্যাডমিন</p>
                     </div>
-                    <Button variant="outline" onClick={() => setIsLoggedIn(false)}>লগআউট</Button>
+                    <Button variant="outline" onClick={() => {
+                        localStorage.removeItem("admin_session")
+                        setIsLoggedIn(false)
+                    }}>লগআউট</Button>
                 </div>
 
                 {/* Quick Stats (Static for now in client component) */}

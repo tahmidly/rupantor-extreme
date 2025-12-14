@@ -47,12 +47,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Set auth token cookie
             if (user) {
-                const token = await user.getIdToken()
-                await fetch("/api/auth/set-cookie", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ token }),
-                })
+                try {
+                    // Force refresh token to ensure it's fresh enough for creating a session cookie
+                    const token = await user.getIdToken(true)
+                    const res = await fetch("/api/auth/set-cookie", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ token }),
+                    })
+                    if (!res.ok) {
+                        console.error("Failed to set session cookie:", await res.text())
+                    }
+                } catch (error) {
+                    console.error("Error setting session cookie:", error)
+                }
 
                 // Sync user to database
                 await fetch("/api/auth/sync-user", {

@@ -5,12 +5,16 @@ export async function getCurrentUser() {
   const cookieStore = await cookies()
   const token = cookieStore.get("auth-token")?.value
 
+  console.log("Checking auth token:", token ? "Token present" : "No token")
+
   if (!token) {
     return null
   }
 
   try {
-    const decodedToken = await adminAuth.verifyIdToken(token)
+    // Verify the session cookie
+    const decodedToken = await adminAuth.verifySessionCookie(token, true)
+    console.log("Token verified successfully, UID:", decodedToken.uid)
     return decodedToken
   } catch (error) {
     console.error("Error verifying token:", error)

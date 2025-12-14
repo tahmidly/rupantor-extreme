@@ -9,7 +9,24 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { Product } from "@/types"
 import { Loader2 } from "lucide-react"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+
+const CATEGORIES = [
+    { id: "borkha", label: "বোরখা" },
+    { id: "semi-long-khimar", label: "সেমি লং খিমার" },
+    { id: "long-khimar", label: "লং খিমার" },
+    { id: "short-hijab", label: "শর্ট হিজাব" },
+    { id: "bra", label: "ব্রা" },
+    { id: "panty", label: "পেন্টি" },
+    { id: "kids", label: "শিশুদের পণ্য" },
+]
 
 interface ProductFormProps {
     product?: Product | null
@@ -166,11 +183,21 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
                 <div className="space-y-2">
                     <Label htmlFor="category">ক্যাটাগরি</Label>
-                    <Input
-                        id="category"
+                    <Select
                         value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    />
+                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="ক্যাটাগরি নির্বাচন করুন" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {CATEGORIES.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>
+                                    {category.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
