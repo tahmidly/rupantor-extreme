@@ -37,10 +37,9 @@ interface ProductFormProps {
 export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
     const [formData, setFormData] = useState({
         name: product?.name || "",
-        name_bengali: product?.name_bengali || "",
         description: product?.description || "",
-        description_bengali: product?.description_bengali || "",
         price: product?.price || "",
+        original_price: product?.original_price || "",
         category: product?.category || "",
         stock: product?.stock || "",
         is_active: product?.is_active ?? true,
@@ -56,32 +55,25 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
         setUploading(true)
         const formData = new FormData()
         formData.append("file", file)
-        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-        const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "hijab-store"
-
-        console.log("Debugging Cloudinary Upload:")
-        console.log("Cloud Name:", cloudName)
-        console.log("Upload Preset:", uploadPreset)
-
-        if (!cloudName) {
-            alert("Cloudinary Cloud Name is missing in .env")
-            setUploading(false)
-            return
-        }
-
+        // Local Storage Upload
         try {
-            const res = await fetch(
-                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-                {
-                    method: "POST",
-                    body: formData,
-                },
-            )
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            })
+
+            if (!res.ok) {
+                const errorData = await res.text()
+                console.error("Upload Error Response:", res.status, errorData)
+                throw new Error(`Upload failed: ${res.status}`)
+            }
+
             const data = await res.json()
-            setFormData((prev) => ({ ...prev, image_url: data.secure_url }))
+            console.log("Upload successful:", data)
+            setFormData((prev) => ({ ...prev, image_url: data.url }))
         } catch (error) {
-            console.error("Image upload failed:", error)
-            alert("ছবি আপলোড ব্যর্থ হয়েছে")
+            console.error("Full Upload Error Details:", error)
+            alert(`ছবি আপলোড ব্যর্থ হয়েছে: ${error instanceof Error ? error.message : "Unknown error"}`)
         } finally {
             setUploading(false)
         }
@@ -89,6 +81,12 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!formData.category) {
+            alert("অনুগ্রহ করে একটি ক্যাটাগরি নির্বাচন করুন")
+            return
+        }
+
         setLoading(true)
 
         try {
@@ -116,29 +114,18 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="name">পণ্যের নাম (English) *</Label>
-                    <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="name_bengali">পণ্যের নাম (বাংলা)</Label>
-                    <Input
-                        id="name_bengali"
-                        value={formData.name_bengali}
-                        onChange={(e) => setFormData({ ...formData, name_bengali: e.target.value })}
-                    />
-                </div>
+            <div className="space-y-2">
+                <Label htmlFor="name">পণ্যের নাম *</Label>
+                <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                />
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="description">বিবরণ (English)</Label>
+                <Label htmlFor="description">বিবরণ (ঐচ্ছিক)</Label>
                 <Textarea
                     id="description"
                     value={formData.description}
@@ -147,19 +134,9 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
                 />
             </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="description_bengali">বিবরণ (বাংলা)</Label>
-                <Textarea
-                    id="description_bengali"
-                    value={formData.description_bengali}
-                    onChange={(e) => setFormData({ ...formData, description_bengali: e.target.value })}
-                    rows={3}
-                />
-            </div>
-
             <div className="grid sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="price">মূল্য (৳) *</Label>
+                    <Label htmlFor="price">বিক্রয় মূল্য (৳) *</Label>
                     <Input
                         id="price"
                         type="number"
@@ -167,6 +144,18 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
                         value={formData.price}
                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         required
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="original_price">মূল মূল্য (৳) (ঐচ্ছিক)</Label>
+                    <Input
+                        id="original_price"
+                        type="number"
+                        step="0.01"
+                        value={formData.original_price}
+                        onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
+                        placeholder="ছাড়ের আগের দাম"
                     />
                 </div>
 
@@ -182,12 +171,12 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="category">ক্যাটাগরি</Label>
+                    <Label htmlFor="category">ক্যাটাগরি *</Label>
                     <Select
                         value={formData.category}
                         onValueChange={(value) => setFormData({ ...formData, category: value })}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className={!formData.category ? "border-red-500" : ""}>
                             <SelectValue placeholder="ক্যাটাগরি নির্বাচন করুন" />
                         </SelectTrigger>
                         <SelectContent>

@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                                     src={product.image_url}
                                     alt={product.name}
                                     fill
-                                    className="object-cover"
+                                    className="object-contain"
                                     priority
                                     sizes="(max-width: 768px) 100vw, 60vw"
                                 />
@@ -68,9 +68,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
                             <div className="flex items-baseline gap-4 pt-2">
                                 <span className="text-3xl font-bold">৳{Number(product.price).toFixed(2)}</span>
-                                <span className="text-lg text-muted-foreground line-through decoration-muted-foreground/50">
-                                    ৳{Math.round(Number(product.price) * 1.2).toFixed(2)}
-                                </span>
+                                {product.original_price && Number(product.original_price) > Number(product.price) && (
+                                    <span className="text-lg text-muted-foreground line-through decoration-muted-foreground/50">
+                                        ৳{Number(product.original_price).toFixed(2)}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
@@ -127,17 +129,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                             </div>
                         </div>
 
-                        {/* Features / Assurance */}
-                        <div className="grid grid-cols-1 gap-4 pt-8 border-t">
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <Truck className="h-5 w-5 text-foreground" />
-                                <span>Free shipping on orders over ৳2000</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <ShieldCheck className="h-5 w-5 text-foreground" />
-                                <span>100% Authentic & Quality Guaranteed</span>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </main>

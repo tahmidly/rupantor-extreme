@@ -12,6 +12,18 @@ interface ProductFilterProps {
     products: Product[]
 }
 
+const CATEGORY_MAP: Record<string, string> = {
+    "borkha": "বোরখা",
+    "semi-long-khimar": "সেমি লং খিমার",
+    "long-khimar": "লং খিমার",
+    "short-hijab": "শর্ট হিজাব",
+    "bra": "ব্রা",
+    "panty": "পেন্টি",
+    "kids": "শিশুদের পণ্য",
+    "hijab-set": "হিজাব সেট",
+    "abaya": "আবায়া",
+}
+
 export function ProductFilter({ products }: ProductFilterProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -82,7 +94,7 @@ export function ProductFilter({ products }: ProductFilterProps) {
                                 onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
                             />
                             <Label htmlFor={category} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize cursor-pointer">
-                                {category}
+                                {CATEGORY_MAP[category] || category}
                             </Label>
                         </div>
                     ))}

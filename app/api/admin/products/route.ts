@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
     // await requireAdmin() - Disabled for mock dashboard
 
     const data = await request.json()
-    const { name, name_bengali, description, description_bengali, price, category, stock, is_active, image_url } = data
+    const { name, name_bengali, description, description_bengali, price, original_price, category, stock, is_active, image_url } = data
 
     const result = await sql`
-      INSERT INTO products (name, name_bengali, description, description_bengali, price, category, stock, is_active, image_url)
-      VALUES (${name}, ${name_bengali}, ${description}, ${description_bengali}, ${price}, ${category}, ${stock}, ${is_active}, ${image_url})
+      INSERT INTO products (name, name_bengali, description, description_bengali, price, original_price, category, stock, is_active, image_url)
+      VALUES (${name}, ${name_bengali}, ${description}, ${description_bengali}, ${price}, ${original_price}, ${category}, ${stock}, ${is_active}, ${image_url})
       RETURNING *`
 
     return NextResponse.json(result[0])

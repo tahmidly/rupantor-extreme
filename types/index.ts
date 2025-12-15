@@ -5,6 +5,7 @@ export interface Product {
   description?: string
   description_bengali?: string
   price: number
+  original_price?: number
   image_url?: string
   category?: string
   stock: number
