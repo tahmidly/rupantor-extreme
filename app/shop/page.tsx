@@ -34,9 +34,9 @@ export default async function ShopPage({
             <main className="container mx-auto px-4 py-8">
                 <div className="flex items-center justify-between mb-8 border-b pb-4">
                     <div>
-                        <h1 className="text-3xl font-serif font-medium">All Products</h1>
+                        <h1 className="text-3xl font-serif font-medium">সকল পণ্য</h1>
                         <p className="text-muted-foreground mt-1">
-                            {products.length} products found
+                            {products.length} টি পণ্য পাওয়া গেছে
                         </p>
                     </div>
 
@@ -44,7 +44,7 @@ export default async function ShopPage({
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="outline" className="lg:hidden">
-                                <Filter className="h-4 w-4 mr-2" /> Filters
+                                <Filter className="h-4 w-4 mr-2" /> ফিল্টার
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left">
@@ -71,9 +71,9 @@ export default async function ShopPage({
                             </div>
                         ) : (
                             <div className="text-center py-20 bg-muted/30 rounded-lg border border-dashed">
-                                <p className="text-lg text-muted-foreground">No products found matching your criteria.</p>
+                                <p className="text-lg text-muted-foreground">আপনার অনুসন্ধান অনুযায়ী কোনো পণ্য পাওয়া যায়নি।</p>
                                 <Button asChild variant="link" className="mt-2">
-                                    <Link href="/shop">Clear all filters</Link>
+                                    <Link href="/shop">সব ফিল্টার মুছুন</Link>
                                 </Button>
                             </div>
                         )}

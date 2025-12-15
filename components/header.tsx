@@ -10,7 +10,7 @@ import { Search, ShoppingCart, User, LogOut, Menu, X } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Header() {
@@ -23,7 +23,7 @@ export function Header() {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
         if (searchQuery.trim()) {
-            router.push(`/?search=${encodeURIComponent(searchQuery)}`)
+            router.push(`/shop?search=${encodeURIComponent(searchQuery)}`)
             setIsSearchOpen(false)
         }
     }
@@ -80,6 +80,7 @@ export function Header() {
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="top" className="h-[200px] flex flex-col justify-center">
+                            <SheetTitle className="sr-only">পণ্য অনুসন্ধান করুন</SheetTitle>
                             <form onSubmit={handleSearch} className="container mx-auto max-w-2xl relative">
                                 <input
                                     type="text"
@@ -129,9 +130,7 @@ export function Header() {
                                         <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                                     </div>
                                 </div>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/admin">অ্যাডমিন ড্যাশবোর্ড</Link>
-                                </DropdownMenuItem>
+
                                 <DropdownMenuItem onClick={() => signOut()} className="text-red-500 focus:text-red-500">
                                     <LogOut className="h-4 w-4 mr-2" />
                                     লগ আউট
