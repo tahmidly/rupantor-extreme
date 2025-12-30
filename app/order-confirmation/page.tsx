@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle2, Package } from "lucide-react"
 import Link from "next/link"
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
     const searchParams = useSearchParams()
     const orderNumber = searchParams.get("orderNumber")
     const total = searchParams.get("total")
@@ -87,5 +87,13 @@ export default function OrderConfirmationPage() {
                 </div>
             </main>
         </div>
+    )
+}
+
+export default function OrderConfirmationPage() {
+    return (
+        <Suspense>
+            <OrderConfirmationContent />
+        </Suspense>
     )
 }
