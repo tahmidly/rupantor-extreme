@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import imageCompression from "browser-image-compression"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -48,15 +49,26 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     const [uploading, setUploading] = useState(false)
     const [loading, setLoading] = useState(false)
 
+
+
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
 
         setUploading(true)
-        const formData = new FormData()
-        formData.append("file", file)
-        // Local Storage Upload
         try {
+            // Compress the image
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+            }
+            const compressedFile = await imageCompression(file, options)
+
+            const formData = new FormData()
+            formData.append("file", compressedFile)
+
+            // Local Storage Upload (Proxies to ImgBB)
             const res = await fetch("/api/upload", {
                 method: "POST",
                 body: formData,
