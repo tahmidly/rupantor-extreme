@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, FormEvent } from "react"
+import { useState, useEffect, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { useCart } from "@/components/cart-provider"
+import { useAuth } from "@/components/auth-provider"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,8 +32,19 @@ interface FormErrors {
 }
 
 export default function CheckoutPage() {
-    const { items, cartTotal } = useCart()
+    const { items, cartTotal, clearCart } = useCart()
+    const { user, loading } = useAuth()
     const router = useRouter()
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push("/sign-in")
+        }
+    }, [user, loading, router])
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    }
     const [formData, setFormData] = useState<FormData>({
         fullName: "",
         phone: "",
@@ -92,7 +104,7 @@ export default function CheckoutPage() {
         return Object.keys(newErrors).length === 0
     }
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
 
         if (!validateForm()) {
@@ -101,42 +113,50 @@ export default function CheckoutPage() {
 
         setIsSubmitting(true)
 
-        // Format the message for WhatsApp
-        const productList = items
-            .map(
-                (item) =>
-                    `- ${item.name} x ${item.quantity} - ৳${(item.price * item.quantity).toFixed(2)}`
-            )
-            .join("\n")
+        try {
+            // Create order in database
+            const response = await fetch("/api/orders/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    customerName: formData.fullName,
+                    customerPhone: formData.phone,
+                    customerEmail: formData.email,
+                    deliveryAddress: formData.address,
+                    deliveryCity: formData.city,
+                    deliveryArea: formData.area,
+                    postalCode: formData.postalCode,
+                    orderNotes: formData.notes,
+                    paymentMethod: "cash_on_delivery",
+                    items: items.map((item) => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        image: item.image,
+                    })),
+                }),
+            })
 
-        const customerInfo = `
-*অর্ডার বিবরণ*
+            if (!response.ok) {
+                throw new Error("Failed to create order")
+            }
 
-*গ্রাহক তথ্য:*
-নাম: ${formData.fullName}
-ফোন: ${formData.phone}${formData.email ? `\nইমেইল: ${formData.email}` : ""}
+            const data = await response.json()
 
-*ডেলিভারি ঠিকানা:*
-ঠিকানা: ${formData.address}
-শহর/জেলা: ${formData.city}${formData.area ? `\nএলাকা: ${formData.area}` : ""}${formData.postalCode ? `\nপোস্টাল কোড: ${formData.postalCode}` : ""}
+            // Clear cart after successful order
+            clearCart()
 
-*পণ্য তালিকা:*
-${productList}
-
-*মোট মূল্য: ৳${cartTotal.toFixed(2)}*
-${formData.notes ? `\n*বিশেষ নির্দেশনা:*\n${formData.notes}` : ""}
-
-ধন্যবাদ!
-        `.trim()
-
-        const encodedMessage = encodeURIComponent(customerInfo)
-
-        // Merchant Phone Number
-        const phoneNumber = "8801314531159"
-
-        window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank")
-
-        setIsSubmitting(false)
+            // Redirect to order confirmation page with order details
+            router.push(`/order-confirmation?orderNumber=${data.order.orderNumber}&total=${data.order.total}`)
+        } catch (error) {
+            console.error("Order submission error:", error)
+            alert("অর্ডার তৈরিতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const handleInputChange = (field: keyof FormData, value: string) => {
@@ -371,7 +391,7 @@ ${formData.notes ? `\n*বিশেষ নির্দেশনা:*\n${formData
                             </div>
 
                             <p className="text-xs text-center text-muted-foreground">
-                                অর্ডার সম্পন্ন করলে আপনাকে হোয়াটসঅ্যাপে রিডাইরেক্ট করা হবে।
+                                অর্ডার সম্পন্ন করার পর কনফার্মেশন পেজে যাবেন।
                             </p>
                         </div>
                     </div>

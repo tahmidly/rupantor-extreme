@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useAuth } from "./auth-provider"
 import { useCart } from "@/components/cart-provider"
 import { Button } from "@/components/ui/button"
-import { Search, ShoppingCart, User, LogOut, Menu, X } from "lucide-react"
+import { Search, ShoppingCart, User, LogOut, Menu, X, Package } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -131,6 +131,12 @@ export function Header() {
                                     </div>
                                 </div>
 
+                                <DropdownMenuItem asChild>
+                                    <Link href="/orders" className="cursor-pointer">
+                                        <Package className="h-4 w-4 mr-2" />
+                                        আমার অর্ডার
+                                    </Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => signOut()} className="text-red-500 focus:text-red-500">
                                     <LogOut className="h-4 w-4 mr-2" />
                                     লগ আউট

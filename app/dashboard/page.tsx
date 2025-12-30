@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Package, ShoppingBag, Lock } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function DashboardPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
+    const router = useRouter()
 
     useEffect(() => {
         const session = localStorage.getItem("admin_session")
@@ -31,6 +33,11 @@ export default function DashboardPage() {
         } else {
             setError("ভুল ইউজারনেম বা পাসওয়ার্ড (Invalid username or password)")
         }
+    }
+
+    const handleLogout = () => {
+        localStorage.removeItem("admin_session")
+        setIsLoggedIn(false)
     }
 
     if (!isLoggedIn) {
@@ -54,6 +61,7 @@ export default function DashboardPage() {
                                     placeholder="admin"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
+                                    required
                                 />
                             </div>
                             <div className="space-y-2">
@@ -64,6 +72,7 @@ export default function DashboardPage() {
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
                             {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
@@ -85,10 +94,7 @@ export default function DashboardPage() {
                         <h1 className="text-3xl font-bold mb-2 text-gray-800">অ্যাডমিন ড্যাশবোর্ড</h1>
                         <p className="text-muted-foreground">স্বাগতম, অ্যাডমিন</p>
                     </div>
-                    <Button variant="outline" onClick={() => {
-                        localStorage.removeItem("admin_session")
-                        setIsLoggedIn(false)
-                    }}>লগআউট</Button>
+                    <Button variant="outline" onClick={handleLogout}>লগআউট</Button>
                 </div>
 
                 {/* Quick Stats (Static for now in client component) */}
@@ -103,13 +109,17 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => window.location.href = "/dashboard/orders"}
+                    >
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium">অর্ডার</CardTitle>
                             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">শীঘ্রই আসছে...</div>
+                            <div className="text-2xl font-bold">ম্যানেজ করুন</div>
+                            <p className="text-xs text-muted-foreground mt-1">অর্ডার দেখুন এবং পরিচালনা করুন</p>
                         </CardContent>
                     </Card>
                 </div>

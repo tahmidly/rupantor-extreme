@@ -144,7 +144,7 @@ export default function CartPage() {
                             </Button>
 
                             <p className="text-xs text-center text-muted-foreground mt-4">
-                                চেকআউট পেজে আপনার তথ্য দিয়ে অর্ডার সম্পন্ন করুন।
+                                চেকআউট করে আপনার অর্ডার সম্পন্ন করুন।
                             </p>
                         </div>
                     </div>
