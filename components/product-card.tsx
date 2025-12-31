@@ -28,7 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 )}
 
                 {/* Overlay Actions */}
-                <div className="absolute inset-x-0 bottom-4 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2 justify-center">
+                <div className="absolute inset-x-0 bottom-4 px-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex gap-2 justify-center">
                     <AddToCartButton
                         product={{
                             id: product.id,

@@ -17,10 +17,10 @@ export default async function AdminOrdersPage() {
     const stats = await getOrderStats()
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-rose-50/20">
+        <div className="min-h-screen  bg-gradient-to-b  from-background to-rose-50/20">
             <Header />
 
-            <main className="container py-8">
+            <main className="container py-8 px-8">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">অর্ডার ম্যানেজমেন্ট</h1>
                     <p className="text-muted-foreground">সকল অর্ডার দেখুন এবং পরিচালনা করুন</p>

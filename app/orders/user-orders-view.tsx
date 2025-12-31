@@ -19,7 +19,7 @@ export function UserOrdersView({ orders }: UserOrdersViewProps) {
         <div className="min-h-screen bg-gradient-to-b from-background to-rose-50/20">
             <Header />
 
-            <main className="container mx-auto py-8">
+            <main className="container mx-auto py-8 px-4">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">আমার অর্ডার</h1>
                     <p className="text-muted-foreground">আপনার সকল অর্ডার দেখুন এবং ট্র্যাক করুন</p>

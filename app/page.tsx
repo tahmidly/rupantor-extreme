@@ -7,6 +7,7 @@ import { ArrowRight, Star, Truck, ShieldCheck, RefreshCw } from "lucide-react"
 import { HeroCarousel } from "@/components/hero-carousel"
 import { CategoryCarousel } from "@/components/category-carousel"
 import { TestimonialsSection } from "@/components/testimonials-section"
+import { SalatKhimarSpotlight } from "@/components/salat-khimar-spotlight"
 
 export default async function HomePage({
     searchParams,
@@ -83,7 +84,7 @@ export default async function HomePage({
                         </div>
 
                         {products.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-8 md:gap-y-12">
                                 {products.slice(0, 8).map((product: any) => (
                                     <ProductCard key={product.id} product={product} />
                                 ))}
@@ -104,8 +105,11 @@ export default async function HomePage({
                     </div>
                 </section>
 
+                {/* Salat Khimar Spotlight */}
+                <SalatKhimarSpotlight />
+
                 {/* Testimonials Section */}
-                <TestimonialsSection />
+                {/* <TestimonialsSection /> */}
 
                 {/* Call to Action Section */}
                 <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">

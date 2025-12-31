@@ -15,7 +15,7 @@ export default async function ShopPage({
     const params = await searchParams
     // Fetch all products (or filtered by server if supported, for now fetching all to filter on client/server mix)
     // Actually getProducts supports basic filtering, let's use what we have.
-    const products = await getProducts(params.search, params.category)
+    const products = await getProducts(params.search, params.category) as unknown as import("@/types").Product[]
 
     // We might want to fetch *all* products to generate the distinct category list for the filter
     // ideally getProducts should return aggregation data, but for now let's just fetch all for the filter list if needed
@@ -25,7 +25,7 @@ export default async function ShopPage({
 
     // For a robust filter we typically need a separate query for metadata,
     // but let's stick to the current simpler architecture.
-    const allProductsForFilter = await getProducts()
+    const allProductsForFilter = await getProducts() as unknown as import("@/types").Product[]
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -64,7 +64,7 @@ export default async function ShopPage({
                     {/* Product Grid */}
                     <div className="lg:col-span-3">
                         {products.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                                 {products.map((product: any) => (
                                     <ProductCard key={product.id} product={product} />
                                 ))}

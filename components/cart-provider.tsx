@@ -51,14 +51,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setItems((current) => {
             const existing = current.find((item) => item.id === newItem.id)
             if (existing) {
-                toast.success("পণ্য কার্ডে যোগ করা হয়েছে") // "Product added to cart" (updated quantity)
                 return current.map((item) =>
                     item.id === newItem.id ? { ...item, quantity: item.quantity + 1 } : item
                 )
             }
-            toast.success("পণ্য কার্ডে যোগ করা হয়েছে") // "Product added to cart"
             return [...current, { ...newItem, quantity: 1 }]
         })
+        toast.success("পণ্য কার্ডে যোগ করা হয়েছে") // "Product added to cart"
     }
 
     const removeItem = (id: string) => {

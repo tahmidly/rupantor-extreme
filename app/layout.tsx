@@ -6,6 +6,7 @@ import "./globals.css"
 import { AuthProvider } from "@/components/auth-provider"
 import { CartProvider } from "@/components/cart-provider"
 import { Toaster } from "sonner"
+import { WhatsAppButton } from "@/components/whatsapp-button"
 
 const notoSansBengali = Noto_Sans_Bengali({
     subsets: ["bengali", "latin"],
@@ -47,6 +48,7 @@ export default function RootLayout({
                 <AuthProvider>
                     <CartProvider>
                         {children}
+                        <WhatsAppButton />
                         <Toaster position="bottom-right" richColors />
                     </CartProvider>
                 </AuthProvider>

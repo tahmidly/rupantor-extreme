@@ -21,7 +21,7 @@ const categories = [
     {
         name: "সেমি-লং-খিমার",
         slug: "semi-long-khimar",
-        image: "https://ronginghuri.com/frd-data/img/product/2025/11/_2318_frd_1762800753.jpg",
+        image: "https://layaanabd.com/wp-content/uploads/2025/02/Semi-Long-Khimar-for-instant-ready-outdoor-going.-S.L1.png",
         description: "আরামদায়ক সেমি লং খিমার",
     },
     {
@@ -33,7 +33,7 @@ const categories = [
     {
         name: "শর্ট-হিজাব",
         slug: "short-hijab",
-        image: "https://oishanicreation.com/wp-content/uploads/2025/05/485062836_973421204908916_5310325529181289868_n.jpeg",
+        image: "https://m.media-amazon.com/images/I/41aguPgewtL._AC_SY1000_.jpg",
         description: "প্রতিদিনের ব্যবহারের জন্য",
     },
     {
@@ -73,8 +73,8 @@ export function CategoryCarousel() {
                 <div className="relative">
                     <Swiper
                         modules={[Autoplay, Navigation]}
-                        spaceBetween={24}
-                        slidesPerView={1}
+                        spaceBetween={16}
+                        slidesPerView={2}
                         navigation={true}
                         autoplay={{
                             delay: 4000,
@@ -83,12 +83,15 @@ export function CategoryCarousel() {
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,
+                                spaceBetween: 24,
                             },
                             768: {
                                 slidesPerView: 3,
+                                spaceBetween: 24,
                             },
                             1024: {
                                 slidesPerView: 4,
+                                spaceBetween: 24,
                             },
                         }}
                         className="w-full pb-12"

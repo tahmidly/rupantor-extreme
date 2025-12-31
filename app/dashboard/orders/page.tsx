@@ -87,7 +87,7 @@ export default function DashboardOrdersPage() {
         <div className="min-h-screen bg-gradient-to-b from-background to-rose-50/20">
             <Header />
 
-            <main className="container mx-auto py-8">
+            <main className="container mx-auto py-8 px-4">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">অর্ডার ম্যানেজমেন্ট</h1>

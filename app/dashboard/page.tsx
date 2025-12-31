@@ -99,15 +99,7 @@ export default function DashboardPage() {
 
                 {/* Quick Stats (Static for now in client component) */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium">পণ্য ব্যবস্থাপনা</CardTitle>
-                            <Package className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">ম্যানেজ করুন</div>
-                        </CardContent>
-                    </Card>
+
 
                     <Card
                         className="cursor-pointer hover:shadow-md transition-shadow"
