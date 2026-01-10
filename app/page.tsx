@@ -178,7 +178,7 @@ export default async function HomePage({
                         </div>
 
                         <div className="pt-8 border-t border-border/60 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-muted-foreground">
-                            <p>স্বত্ব © ২০২৫ রূপান্তর। সর্বস্বত্ব সংরক্ষিত।</p>
+                            <p>স্বত্ব © ২০২৬ রূপান্তর। সর্বস্বত্ব সংরক্ষিত।</p>
                             <div className="flex gap-8">
                                 <Link href="#" className="hover:text-foreground transition-colors">গোপনীয়তা নীতি</Link>
                                 <Link href="#" className="hover:text-foreground transition-colors">শর্তাবলী</Link>
