@@ -7,6 +7,7 @@ export interface Product {
   price: number
   original_price?: number
   image_url?: string
+  additional_images?: string[]
   category?: string
   stock: number
   is_active: boolean

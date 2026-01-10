@@ -3,13 +3,19 @@ import { getAuth } from "firebase-admin/auth"
 
 // Initialize Firebase Admin only once
 if (getApps().length === 0) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
-  })
+  if (process.env.FIREBASE_PROJECT_ID) {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      }),
+    })
+  }
 }
 
-export const adminAuth = getAuth()
+const app = getApps()[0]
+export const adminAuth = app ? getAuth(app) : {
+  verifySessionCookie: async () => { throw new Error("Firebase not initialized") },
+  getUser: async () => { throw new Error("Firebase not initialized") }
+} as any

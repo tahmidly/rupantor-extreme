@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { getProductById } from "@/lib/db"
 import { ArrowLeft, Package, Truck, ShieldCheck, Heart, Share2 } from "lucide-react"
 import { AddToCartButton } from "@/components/add-to-cart-button"
+import { QuickOrderButton } from "@/components/quick-order-button"
+import { ProductGallery } from "@/components/product-gallery"
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -15,6 +17,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     if (!product) {
         notFound()
     }
+
+    const allImages = [
+        product.image_url,
+        ...(product.additional_images || [])
+    ].filter(Boolean) as string[]
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -31,23 +38,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     {/* Product Image Gallery (Left) */}
-                    <div className="lg:col-span-7 space-y-4">
-                        <div className="relative aspect-square md:aspect-[4/5] w-full overflow-hidden rounded-lg bg-muted">
-                            {product.image_url ? (
-                                <Image
-                                    src={product.image_url}
-                                    alt={product.name}
-                                    fill
-                                    className="object-contain"
-                                    priority
-                                    sizes="(max-width: 768px) 100vw, 60vw"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
-                                    <Package className="h-24 w-24 opacity-20" />
-                                </div>
-                            )}
-                        </div>
+                    <div className="lg:col-span-7">
+                        <ProductGallery images={allImages} productName={product.name} />
                     </div>
 
                     {/* Product Details (Right) */}
@@ -105,6 +97,20 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
                         {/* Actions */}
                         <div className="space-y-4 pt-4">
+                            <QuickOrderButton
+                                product={{
+                                    id: product.id,
+                                    name: product.name,
+                                    price: Number(product.price),
+                                    image_url: product.image_url || "",
+                                }}
+                                size="lg"
+                                className="w-full h-14 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
+                                disabled={product.stock === 0}
+                                text={product.stock > 0 ? "অর্ডার করুন" : "স্টক আউট"}
+                                showIcon={true}
+                            />
+
                             <AddToCartButton
                                 product={{
                                     id: product.id,
@@ -113,7 +119,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                                     image_url: product.image_url || "",
                                 }}
                                 size="lg"
-                                className="w-full h-14 text-lg rounded-full"
+                                className="w-full h-14 text-lg rounded-full border-2 border-primary text-primary bg-transparent hover:bg-primary/5 shadow-none"
                                 disabled={product.stock === 0}
                                 text={product.stock > 0 ? "কার্টে যোগ করুন" : "স্টক শেষ"} // "Add to Cart" : "Out of Stock"
                                 showIcon={true}

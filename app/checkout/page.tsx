@@ -10,8 +10,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { ArrowLeft, Send, ShoppingBag } from "lucide-react"
 import Link from "next/link"
+import Swal from "sweetalert2"
 
 interface FormData {
     fullName: string
@@ -36,11 +44,13 @@ export default function CheckoutPage() {
     const { user, loading } = useAuth()
     const router = useRouter()
 
+    /*
     useEffect(() => {
         if (!loading && !user) {
             router.push("/sign-in")
         }
     }, [user, loading, router])
+    */
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -57,6 +67,7 @@ export default function CheckoutPage() {
     })
     const [errors, setErrors] = useState<FormErrors>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [shippingCost, setShippingCost] = useState(70) // Default: Inside Dhaka
 
     // Redirect if cart is empty
     if (items.length === 0) {
@@ -96,9 +107,7 @@ export default function CheckoutPage() {
             newErrors.address = "ঠিকানা আবশ্যক"
         }
 
-        if (!formData.city.trim()) {
-            newErrors.city = "শহর/জেলা আবশ্যক"
-        }
+
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -123,13 +132,14 @@ export default function CheckoutPage() {
                 body: JSON.stringify({
                     customerName: formData.fullName,
                     customerPhone: formData.phone,
-                    customerEmail: formData.email,
+                    customerEmail: "", // Removed field
                     deliveryAddress: formData.address,
-                    deliveryCity: formData.city,
-                    deliveryArea: formData.area,
-                    postalCode: formData.postalCode,
-                    orderNotes: formData.notes,
+                    deliveryCity: shippingCost === 70 ? "Dhaka" : "Outside Dhaka",
+                    deliveryArea: "", // Removed field
+                    postalCode: "", // Removed field
+                    orderNotes: "", // Removed field
                     paymentMethod: "cash_on_delivery",
+                    shippingCost: shippingCost,
                     items: items.map((item) => ({
                         id: item.id,
                         name: item.name,
@@ -153,7 +163,12 @@ export default function CheckoutPage() {
             router.push(`/order-confirmation?orderNumber=${data.order.orderNumber}&total=${data.order.total}`)
         } catch (error) {
             console.error("Order submission error:", error)
-            alert("অর্ডার তৈরিতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।")
+            Swal.fire({
+                title: "দুঃখিত",
+                text: "অর্ডার তৈরিতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+                icon: "error",
+                confirmButtonColor: "#e11d48",
+            })
         } finally {
             setIsSubmitting(false)
         }
@@ -185,28 +200,28 @@ export default function CheckoutPage() {
                     {/* Checkout Form */}
                     <div className="lg:col-span-7">
                         <form onSubmit={handleSubmit} className="space-y-8">
-                            {/* Customer Information */}
+                            {/* Simplified Checkout Form */}
                             <div className="bg-card/50 border rounded-lg p-6 space-y-6">
-                                <h2 className="text-xl font-semibold mb-4">গ্রাহক তথ্য</h2>
+                                <h2 className="text-xl font-semibold mb-4">ডেলিভারি তথ্য</h2>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="fullName">
-                                        পূর্ণ নাম <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Input
-                                        id="fullName"
-                                        type="text"
-                                        placeholder="আপনার পূর্ণ নাম লিখুন"
-                                        value={formData.fullName}
-                                        onChange={(e) => handleInputChange("fullName", e.target.value)}
-                                        className={errors.fullName ? "border-red-500" : ""}
-                                    />
-                                    {errors.fullName && (
-                                        <p className="text-sm text-red-500">{errors.fullName}</p>
-                                    )}
-                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="fullName">
+                                            আপনার নাম <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="fullName"
+                                            type="text"
+                                            placeholder="আপনার নাম লিখন"
+                                            value={formData.fullName}
+                                            onChange={(e) => handleInputChange("fullName", e.target.value)}
+                                            className={errors.fullName ? "border-red-500" : ""}
+                                        />
+                                        {errors.fullName && (
+                                            <p className="text-sm text-red-500">{errors.fullName}</p>
+                                        )}
+                                    </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">
                                             ফোন নম্বর <span className="text-red-500">*</span>
@@ -225,94 +240,36 @@ export default function CheckoutPage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">ইমেইল (ঐচ্ছিক)</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            placeholder="example@email.com"
-                                            value={formData.email}
-                                            onChange={(e) => handleInputChange("email", e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Delivery Address */}
-                            <div className="bg-card/50 border rounded-lg p-6 space-y-6">
-                                <h2 className="text-xl font-semibold mb-4">ডেলিভারি ঠিকানা</h2>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="address">
-                                        সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Textarea
-                                        id="address"
-                                        placeholder="বাড়ি নম্বর, রোড নম্বর, এলাকা"
-                                        value={formData.address}
-                                        onChange={(e) => handleInputChange("address", e.target.value)}
-                                        className={errors.address ? "border-red-500" : ""}
-                                        rows={3}
-                                    />
-                                    {errors.address && (
-                                        <p className="text-sm text-red-500">{errors.address}</p>
-                                    )}
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="city">
-                                            শহর/জেলা <span className="text-red-500">*</span>
+                                        <Label htmlFor="address">
+                                            সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
                                         </Label>
-                                        <Input
-                                            id="city"
-                                            type="text"
-                                            placeholder="যেমন: ঢাকা, চট্টগ্রাম"
-                                            value={formData.city}
-                                            onChange={(e) => handleInputChange("city", e.target.value)}
-                                            className={errors.city ? "border-red-500" : ""}
+                                        <Textarea
+                                            id="address"
+                                            placeholder="আপনার সম্পূর্ণ ঠিকানা লিখুন (বাসা নং, রোড, এলাকা, জেলা)"
+                                            value={formData.address}
+                                            onChange={(e) => handleInputChange("address", e.target.value)}
+                                            className={`min-h-[100px] ${errors.address ? "border-red-500" : ""}`}
                                         />
-                                        {errors.city && (
-                                            <p className="text-sm text-red-500">{errors.city}</p>
+                                        {errors.address && (
+                                            <p className="text-sm text-red-500">{errors.address}</p>
                                         )}
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="area">এলাকা/ল্যান্ডমার্ক (ঐচ্ছিক)</Label>
-                                        <Input
-                                            id="area"
-                                            type="text"
-                                            placeholder="যেমন: মিরপুর, গুলশান"
-                                            value={formData.area}
-                                            onChange={(e) => handleInputChange("area", e.target.value)}
-                                        />
+                                        <Label>ডেলিভারি এলাকা <span className="text-red-500">*</span></Label>
+                                        <Select
+                                            value={shippingCost.toString()}
+                                            onValueChange={(val) => setShippingCost(parseInt(val))}
+                                        >
+                                            <SelectTrigger className="w-full h-11 border-2">
+                                                <SelectValue placeholder="ডেলিভারি এরিয়া সিলেক্ট করুন" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="70">ঢাকার ভিতরে (৳৭০)</SelectItem>
+                                                <SelectItem value="120">ঢাকার বাইরে (৳১২০)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="postalCode">পোস্টাল কোড (ঐচ্ছিক)</Label>
-                                    <Input
-                                        id="postalCode"
-                                        type="text"
-                                        placeholder="1216"
-                                        value={formData.postalCode}
-                                        onChange={(e) => handleInputChange("postalCode", e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Additional Information */}
-                            <div className="bg-card/50 border rounded-lg p-6 space-y-6">
-                                <h2 className="text-xl font-semibold mb-4">অতিরিক্ত তথ্য</h2>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="notes">অর্ডার নোট/বিশেষ নির্দেশনা (ঐচ্ছিক)</Label>
-                                    <Textarea
-                                        id="notes"
-                                        placeholder="ডেলিভারি সম্পর্কে কোনো বিশেষ নির্দেশনা থাকলে এখানে লিখুন"
-                                        value={formData.notes}
-                                        onChange={(e) => handleInputChange("notes", e.target.value)}
-                                        rows={4}
-                                    />
                                 </div>
                             </div>
 
@@ -323,7 +280,7 @@ export default function CheckoutPage() {
                                     className="w-full rounded-full h-12 text-lg font-medium"
                                     disabled={isSubmitting}
                                 >
-                                    অর্ডার সম্পন্ন করুন <Send className="ml-2 h-4 w-4" />
+                                    অর্ডার কনফার্ম করুন <Send className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
                         </form>
@@ -367,12 +324,12 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">শিপিং</span>
-                                    <span className="text-green-600 font-medium">ফ্রি</span>
+                                    <span className="text-primary font-medium">৳{shippingCost.toFixed(2)}</span>
                                 </div>
                                 <div className="border-t pt-4 flex justify-between items-end">
                                     <span className="font-semibold text-lg">সর্বমোট</span>
                                     <div className="text-right">
-                                        <span className="block text-2xl font-bold">৳{cartTotal.toFixed(2)}</span>
+                                        <span className="block text-2xl font-bold">৳{(cartTotal + shippingCost).toFixed(2)}</span>
                                         <span className="text-xs text-muted-foreground">ভ্যাট সহ</span>
                                     </div>
                                 </div>

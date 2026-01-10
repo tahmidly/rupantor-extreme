@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
       postalCode,
       orderNotes,
       paymentMethod,
+      shippingCost: requestedShippingCost,
       items,
     } = body
 
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       (sum: number, item: any) => sum + item.price * item.quantity,
       0
     )
-    const shippingCost = 0 // Free shipping
+    const shippingCost = requestedShippingCost !== undefined ? requestedShippingCost : 0
     const total = subtotal + shippingCost
 
     // Get current user if logged in

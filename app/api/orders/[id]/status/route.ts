@@ -13,8 +13,9 @@ const VALID_STATUSES = [
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     // Require admin authentication
     // await requireAdmin()
@@ -29,7 +30,7 @@ export async function PATCH(
       )
     }
 
-    const order = await updateOrderStatus(params.id, status)
+    const order = await updateOrderStatus(id, status)
 
     if (!order) {
       return NextResponse.json(

@@ -2,6 +2,10 @@ import { cookies } from "next/headers"
 import { adminAuth } from "./firebase-admin"
 
 export async function getCurrentUser() {
+  // Bypass Firebase for now
+  return null
+
+  /*
   const cookieStore = await cookies()
   const token = cookieStore.get("auth-token")?.value
 
@@ -20,6 +24,7 @@ export async function getCurrentUser() {
     console.error("Error verifying token:", error)
     return null
   }
+  */
 }
 
 export async function requireAuth() {
@@ -31,6 +36,9 @@ export async function requireAuth() {
 }
 
 export async function requireAdmin() {
+  throw new Error("Forbidden: Admin access disabled (Firebase removed)")
+
+  /*
   const user = await requireAuth()
   const { isUserAdmin } = await import("./db")
   const isAdmin = await isUserAdmin(user.uid)
@@ -40,4 +48,5 @@ export async function requireAdmin() {
   }
 
   return user
+  */
 }

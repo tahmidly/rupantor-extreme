@@ -34,7 +34,7 @@ export default async function HomePage({
                     </div>
 
                     <div className="relative z-10 text-center text-white space-y-6 max-w-3xl px-4 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                        <span className="uppercase tracking-[0.2em] text-sm font-medium">নতুন কালেকশন ২০২৫</span>
+                        <span className="uppercase tracking-[0.2em] text-sm font-medium">নতুন কালেকশন ২০২6</span>
                         <h1 className="text-5xl md:text-7xl font-serif font-medium tracking-tight">শালীনতায় আভিজাত্য</h1>
                         <p className="text-lg md:text-xl font-light text-white/90 max-w-xl mx-auto">
                             আধুনিক নারীদের জন্য আমাদের প্রিমিয়াম হিজাব এবং আবায়া কালেকশন।

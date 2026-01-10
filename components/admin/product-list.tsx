@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Edit, Trash2, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
+import Swal from "sweetalert2"
 
 interface ProductListProps {
     products: Product[]
@@ -19,7 +20,18 @@ export function ProductList({ products, onEdit, onUpdate, loading }: ProductList
     const [deleting, setDeleting] = useState<string | null>(null)
 
     const handleDelete = async (id: string) => {
-        if (!confirm("আপনি কি নিশ্চিত যে এই পণ্যটি মুছে ফেলতে চান?")) return
+        const result = await Swal.fire({
+            title: "আপনি কি নিশ্চিত?",
+            text: "এই পণ্যটি মুছে ফেলা হবে!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#e11d48",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "হ্যাঁ, মুছে ফেলুন",
+            cancelButtonText: "বাতিল"
+        })
+
+        if (!result.isConfirmed) return
 
         setDeleting(id)
         try {
@@ -28,13 +40,31 @@ export function ProductList({ products, onEdit, onUpdate, loading }: ProductList
             })
 
             if (res.ok) {
+                Swal.fire({
+                    title: "সফল!",
+                    text: "পণ্যটি মুছে ফেলা হয়েছে",
+                    icon: "success",
+                    confirmButtonColor: "#e11d48",
+                    timer: 2000,
+                    timerProgressBar: true
+                })
                 onUpdate()
             } else {
-                alert("পণ্য মুছে ফেলা ব্যর্থ হয়েছে")
+                Swal.fire({
+                    title: "ব্যর্থ",
+                    text: "পণ্য মুছে ফেলা ব্যর্থ হয়েছে",
+                    icon: "error",
+                    confirmButtonColor: "#e11d48",
+                })
             }
         } catch (error) {
             console.error("Failed to delete product:", error)
-            alert("পণ্য মুছে ফেলা ব্যর্থ হয়েছে")
+            Swal.fire({
+                title: "ব্যর্থ",
+                text: "পণ্য মুছে ফেলা ব্যর্থ হয়েছে",
+                icon: "error",
+                confirmButtonColor: "#e11d48",
+            })
         } finally {
             setDeleting(null)
         }

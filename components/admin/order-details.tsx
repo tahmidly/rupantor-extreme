@@ -8,12 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { formatDate } from "@/lib/utils"
 import Image from "next/image"
-import { User, Phone, Mail, MapPin, Package, CreditCard, Trash2 } from "lucide-react"
+import { User, Phone, Mail, MapPin, Package, CreditCard, Trash2, MessageCircle, Loader2 } from "lucide-react"
+import Swal from "sweetalert2"
 
 interface OrderDetailsProps {
     order: OrderWithItems
     onStatusUpdate: (orderId: string, newStatus: string) => void
     onDelete: (orderId: string) => void
+    isUpdating?: boolean
+    isDeleting?: boolean
 }
 
 const statusColors: Record<OrderStatus, string> = {
@@ -34,7 +37,13 @@ const statusLabels: Record<OrderStatus, string> = {
     cancelled: "বাতিল",
 }
 
-export function OrderDetails({ order, onStatusUpdate, onDelete }: OrderDetailsProps) {
+export function OrderDetails({
+    order,
+    onStatusUpdate,
+    onDelete,
+    isUpdating = false,
+    isDeleting = false
+}: OrderDetailsProps) {
     return (
         <div className="rounded-lg py-7 border bg-card sticky top-24">
             <CardHeader>
@@ -53,25 +62,79 @@ export function OrderDetails({ order, onStatusUpdate, onDelete }: OrderDetailsPr
 
             <CardContent className="space-y-6">
                 {/* Status Update */}
-                <div>
-                    <label className="text-sm font-medium mb-2 block">স্ট্যাটাস আপডেট করুন</label>
+                {/* Order Status Section */}
+                <div className="space-y-3">
+                    <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Package className="h-4 w-4" />
+                        স্ট্যাটাস আপডেট করুন
+                    </label>
                     <Select
-                        value={order.status}
+                        key={`status-${order.id}-${order.status}`}
+                        defaultValue={order.status}
                         onValueChange={(value) => onStatusUpdate(order.id, value)}
+                        disabled={isUpdating || isDeleting}
                     >
-                        <SelectTrigger>
-                            <SelectValue />
+                        <SelectTrigger className="w-full bg-background border-2 focus:ring-primary h-11">
+                            <SelectValue placeholder="সিলেক্ট করুন" />
                         </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="pending">পেন্ডিং</SelectItem>
-                            <SelectItem value="confirmed">কনফার্মড</SelectItem>
-                            <SelectItem value="processing">প্রসেসিং</SelectItem>
-                            <SelectItem value="shipped">শিপড</SelectItem>
-                            <SelectItem value="delivered">ডেলিভার হয়েছে</SelectItem>
-                            <SelectItem value="cancelled">বাতিল</SelectItem>
+                        <SelectContent className="z-[100]">
+                            <SelectItem value="pending">⏳ পেন্ডিং</SelectItem>
+                            <SelectItem value="confirmed">✅ কনফার্মড</SelectItem>
+                            <SelectItem value="processing">⚙️ প্রসেসিং</SelectItem>
+                            <SelectItem value="shipped">🚚 শিপড</SelectItem>
+                            <SelectItem value="delivered">🎉 ডেলিভার হয়েছে</SelectItem>
+                            <SelectItem value="cancelled">❌ বাতিল</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
+
+                <Button
+                    variant="outline"
+                    className="w-full border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700"
+                    disabled={isUpdating || isDeleting}
+                    onClick={() => {
+                        let message = ""
+                        switch (order.status) {
+                            case "pending":
+                                message = `আসসালামু আলাইকুম ${order.customer_name}, আপনার অর্ডার #${order.order_number} টি আমাদের সিস্টেমে পেন্ডিং আছে। আমরা শীঘ্রই এটি কনফার্ম করবো।`
+                                break
+                            case "confirmed":
+                                message = `আসসালামু আলাইকুম ${order.customer_name}, আপনার অর্ডার #${order.order_number} টি কনফার্ম করা হয়েছে। আমরা শীঘ্রই এটি পাঠানোর ব্যবস্থা করছি।`
+                                break
+                            case "processing":
+                                message = `আসসালামু আলাইকুম ${order.customer_name}, আপনার অর্ডার #${order.order_number} টি প্রসেসিং করা হচ্ছে।`
+                                break
+                            case "shipped":
+                                message = `আসসালামু আলাইকুম ${order.customer_name}, সুখবর! আপনার অর্ডার #${order.order_number} টি শিপ করা হয়েছে। শীঘ্রই আপনি এটি ডেলিভারি পাবেন।`
+                                break
+                            case "delivered":
+                                message = `আসসালামু আলাইকুম ${order.customer_name}, আপনার অর্ডার #${order.order_number} টি সফলভাবে ডেলিভার হয়েছে। আমাদের সাথে থাকার জন্য ধন্যবাদ।`
+                                break
+                            case "cancelled":
+                                message = `দুঃখিত ${order.customer_name}, আপনার অর্ডার #${order.order_number} টি বাতিল করা হয়েছে। বিস্তারিত জানতে আমাদের সাথে যোগাযোগ করুন।`
+                                break
+                            default:
+                                message = `আসসালামু আলাইকুম ${order.customer_name}, আপনার অর্ডার #${order.order_number} সম্পর্কে আপডেট।`
+                        }
+
+                        // Format phone number (ensure +88 prefix)
+                        let phone = order.customer_phone.trim()
+                        if (phone.startsWith("0")) {
+                            phone = "+88" + phone
+                        } else if (!phone.startsWith("+")) {
+                            phone = "+880" + phone
+                        }
+
+                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
+                    }}
+                >
+                    {isUpdating ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                    )}
+                    WhatsApp-এ মেসেজ পাঠান
+                </Button>
 
                 <Separator />
 
@@ -200,13 +263,29 @@ export function OrderDetails({ order, onStatusUpdate, onDelete }: OrderDetailsPr
                 <Button
                     variant="outline"
                     className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    onClick={() => {
-                        if (confirm("আপনি কি নিশ্চিত যে আপনি এই অর্ডারটি ডিলিট করতে চান?")) {
+                    disabled={isDeleting || isUpdating}
+                    onClick={async () => {
+                        const result = await Swal.fire({
+                            title: "আপনি কি নিশ্চিত?",
+                            text: "এই অর্ডারটি চিরতরে ডিলিট করা হবে!",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#e11d48",
+                            cancelButtonColor: "#64748b",
+                            confirmButtonText: "হ্যাঁ, ডিলিট করুন",
+                            cancelButtonText: "বাতিল"
+                        })
+
+                        if (result.isConfirmed) {
                             onDelete(order.id)
                         }
                     }}
                 >
-                    <Trash2 className="mr-2 h-4 w-4" />
+                    {isDeleting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                    )}
                     অর্ডার ডিলিট করুন
                 </Button>
             </CardContent>

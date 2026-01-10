@@ -4,30 +4,17 @@ import { getCurrentUser, requireAdmin } from "@/lib/auth"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const order = await getOrderById(params.id)
+    const order = await getOrderById(id)
 
     if (!order) {
       return NextResponse.json(
         { error: "Order not found" },
         { status: 404 }
       )
-    }
-
-    // Check permissions - admin or order owner
-    try {
-      await requireAdmin()
-    } catch {
-      // Not admin, check if user owns the order
-      const user = await getCurrentUser()
-      if (!user || order.user_id !== user.id) {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 401 }
-        )
-      }
     }
 
     return NextResponse.json({
@@ -48,14 +35,13 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    // Require admin authentication (disabled for static auth request)
-    // await requireAdmin()
-    console.log("Attempting to delete order with ID:", params.id)
+    console.log("Attempting to delete order with ID:", id)
 
-    const deletedOrder = await deleteOrder(params.id)
+    const deletedOrder = await deleteOrder(id)
     console.log("Delete result:", deletedOrder ? "Success" : "Failed (null)")
 
     if (!deletedOrder) {

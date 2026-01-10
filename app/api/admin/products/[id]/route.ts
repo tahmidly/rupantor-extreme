@@ -8,12 +8,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params
 
     const data = await request.json()
-    const { name, name_bengali, description, description_bengali, price, original_price, category, stock, is_active, image_url } = data
+    const { name, name_bengali, description, description_bengali, price, original_price, category, stock, is_active, image_url, additional_images } = data
 
     const result = await sql`
        UPDATE products
        SET name = ${name}, name_bengali = ${name_bengali}, description = ${description}, description_bengali = ${description_bengali},
-           price = ${price}, original_price = ${original_price}, category = ${category}, stock = ${stock}, is_active = ${is_active}, image_url = ${image_url}, updated_at = CURRENT_TIMESTAMP
+           price = ${price}, original_price = ${original_price}, category = ${category}, stock = ${stock}, is_active = ${is_active},
+           image_url = ${image_url}, additional_images = ${additional_images || []}, updated_at = CURRENT_TIMESTAMP
        WHERE id = ${id} RETURNING *`
 
     return NextResponse.json(result[0])

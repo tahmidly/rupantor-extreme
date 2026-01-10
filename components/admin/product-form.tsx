@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { Product } from "@/types"
-import { Loader2 } from "lucide-react"
+import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react"
 import {
     Select,
     SelectContent,
@@ -18,6 +18,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import Swal from "sweetalert2"
 
 const CATEGORIES = [
     { id: "borkha", label: "বোরখা" },
@@ -45,22 +46,18 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
         stock: product?.stock || "",
         is_active: product?.is_active ?? true,
         image_url: product?.image_url || "",
+        additional_images: product?.additional_images || [],
     })
-    const [uploading, setUploading] = useState(false)
+    const [uploadingIndex, setUploadingIndex] = useState<number | "main" | null>(null)
     const [loading, setLoading] = useState(false)
 
 
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-
-        setUploading(true)
+    const handleImageUpload = async (file: File, type: "main" | number) => {
+        setUploadingIndex(type)
         try {
-            // Compress the image
             const options = {
                 maxSizeMB: 1,
-                maxWidthOrHeight: 1920,
+                maxWidthOrHeight: 1200,
                 useWebWorker: true,
             }
             const compressedFile = await imageCompression(file, options)
@@ -68,34 +65,70 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             const formData = new FormData()
             formData.append("file", compressedFile)
 
-            // Local Storage Upload (Proxies to ImgBB)
             const res = await fetch("/api/upload", {
                 method: "POST",
                 body: formData,
             })
 
-            if (!res.ok) {
-                const errorData = await res.text()
-                console.error("Upload Error Response:", res.status, errorData)
-                throw new Error(`Upload failed: ${res.status}`)
-            }
+            if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
 
             const data = await res.json()
-            console.log("Upload successful:", data)
-            setFormData((prev) => ({ ...prev, image_url: data.url }))
+
+            if (type === "main") {
+                setFormData((prev) => ({ ...prev, image_url: data.url }))
+            } else if (type === prevAdditionalCount) {
+                // Uploading to the "new" slot
+                setFormData((prev) => ({
+                    ...prev,
+                    additional_images: [...prev.additional_images, data.url]
+                }))
+            } else {
+                setFormData((prev) => {
+                    const newImages = [...prev.additional_images]
+                    newImages[type] = data.url
+                    return { ...prev, additional_images: newImages }
+                })
+            }
         } catch (error) {
-            console.error("Full Upload Error Details:", error)
-            alert(`ছবি আপলোড ব্যর্থ হয়েছে: ${error instanceof Error ? error.message : "Unknown error"}`)
+            console.error(error)
+            Swal.fire({
+                title: "ব্যর্থ",
+                text: "ছবি আপলোড ব্যর্থ হয়েছে",
+                icon: "error",
+                confirmButtonColor: "#e11d48",
+            })
         } finally {
-            setUploading(false)
+            setUploadingIndex(null)
         }
+    }
+
+    const prevAdditionalCount = formData.additional_images.length;
+
+    const removeImage = (type: "main" | number) => {
+        if (type === "main") {
+            setFormData((prev) => ({ ...prev, image_url: "" }))
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                additional_images: prev.additional_images.filter((_, i) => i !== type),
+            }))
+        }
+    }
+
+    const triggerFileInput = (id: string) => {
+        document.getElementById(id)?.click()
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
         if (!formData.category) {
-            alert("অনুগ্রহ করে একটি ক্যাটাগরি নির্বাচন করুন")
+            Swal.fire({
+                title: "তথ্য অসম্পূর্ণ",
+                text: "অনুগ্রহ করে একটি ক্যাটাগরি নির্বাচন করুন",
+                icon: "warning",
+                confirmButtonColor: "#e11d48",
+            })
             return
         }
 
@@ -112,17 +145,37 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             })
 
             if (res.ok) {
+                Swal.fire({
+                    title: "সফল!",
+                    text: product ? "পণ্যটি আপডেট করা হয়েছে" : "নতুন পণ্যটি যোগ করা হয়েছে",
+                    icon: "success",
+                    confirmButtonColor: "#e11d48",
+                    timer: 3000,
+                    timerProgressBar: true,
+                })
                 onSuccess()
             } else {
-                alert("পণ্য সংরক্ষণ ব্যর্থ হয়েছে")
+                Swal.fire({
+                    title: "ব্যর্থ",
+                    text: "পণ্য সংরক্ষণ ব্যর্থ হয়েছে",
+                    icon: "error",
+                    confirmButtonColor: "#e11d48",
+                })
             }
         } catch (error) {
             console.error("Failed to save product:", error)
-            alert("পণ্য সংরক্ষণ ব্যর্থ হয়েছে")
+            Swal.fire({
+                title: "ব্যর্থ",
+                text: "পণ্য সংরক্ষণ ব্যর্থ হয়েছে",
+                icon: "error",
+                confirmButtonColor: "#e11d48",
+            })
         } finally {
             setLoading(false)
         }
     }
+
+    const isUploading = uploadingIndex !== null
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -202,19 +255,187 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="image">পণ্যের ছবি</Label>
-                <div className="flex gap-2">
-                    <Input id="image" type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                    {uploading && <Loader2 className="h-5 w-5 animate-spin" />}
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label className="text-sm font-semibold">পণ্যের ছবিসমূহ</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                        {/* Main Image Slot */}
+                        <div className="relative aspect-square group">
+                            <input
+                                type="file"
+                                id="main-image-input"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) handleImageUpload(file, "main")
+                                }}
+                            />
+                            {formData.image_url ? (
+                                <div className="relative w-full h-full rounded-lg overflow-hidden border-2 border-primary/20 group-hover:border-primary/50 transition-all">
+                                    <img
+                                        src={formData.image_url}
+                                        alt="Main"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full"
+                                            onClick={() => triggerFileInput("main-image-input")}
+                                        >
+                                            <ImagePlus className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full"
+                                            onClick={() => removeImage("main")}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+
+                                    {/* Mobile Actions */}
+                                    <div className="absolute bottom-0 inset-x-0 bg-black/60 py-1.5 flex md:hidden items-center justify-center gap-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => triggerFileInput("main-image-input")}
+                                            className="text-white active:scale-95 transition-transform"
+                                        >
+                                            <ImagePlus className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage("main")}
+                                            className="text-white active:scale-95 transition-transform"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
+
+                                    <div className="absolute top-2 left-2 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                        Main
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => triggerFileInput("main-image-input")}
+                                    className="w-full h-full border-2 border-dashed border-muted-foreground/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-muted/50 hover:border-primary/50 transition-all text-muted-foreground"
+                                >
+                                    {uploadingIndex === "main" ? (
+                                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                    ) : (
+                                        <>
+                                            <Plus className="h-6 w-6" />
+                                            <span className="text-[10px] font-medium">প্রধান ছবি</span>
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Additional Images */}
+                        {formData.additional_images.map((url, index) => (
+                            <div key={index} className="relative aspect-square group">
+                                <input
+                                    type="file"
+                                    id={`extra-image-${index}`}
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0]
+                                        if (file) handleImageUpload(file, index)
+                                    }}
+                                />
+                                <div className="relative w-full h-full rounded-lg overflow-hidden border-2 border-muted group-hover:border-primary/50 transition-all">
+                                    <img
+                                        src={url}
+                                        alt={`Extra ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full"
+                                            onClick={() => triggerFileInput(`extra-image-${index}`)}
+                                        >
+                                            <ImagePlus className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full"
+                                            onClick={() => removeImage(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+
+                                    {/* Mobile Actions */}
+                                    <div className="absolute bottom-0 inset-x-0 bg-black/60 py-1.5 flex md:hidden items-center justify-center gap-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => triggerFileInput(`extra-image-${index}`)}
+                                            className="text-white active:scale-95 transition-transform"
+                                        >
+                                            <ImagePlus className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(index)}
+                                            className="text-white active:scale-95 transition-transform"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
+
+                                    {uploadingIndex === index && (
+                                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                            <Loader2 className="h-6 w-6 animate-spin text-white" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Plus Box (Add New Image) */}
+                        <div className="relative aspect-square">
+                            <input
+                                type="file"
+                                id="new-image-input"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) handleImageUpload(file, formData.additional_images.length)
+                                }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => triggerFileInput("new-image-input")}
+                                disabled={isUploading}
+                                className="w-full h-full bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 transition-all group"
+                            >
+                                {uploadingIndex === formData.additional_images.length ? (
+                                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                ) : (
+                                    <>
+                                        <Plus className="h-8 w-8 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                                        <span className="text-[10px] text-gray-500 font-medium">অতিরিক্ত ছবি</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                {formData.image_url && (
-                    <img
-                        src={formData.image_url || "/placeholder.svg"}
-                        alt="Preview"
-                        className="mt-2 h-32 w-32 object-cover rounded"
-                    />
-                )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -227,7 +448,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             </div>
 
             <div className="flex gap-2 pt-4">
-                <Button type="submit" disabled={loading || uploading} className="flex-1">
+                <Button type="submit" disabled={loading || isUploading} className="flex-1">
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : product ? "আপডেট করুন" : "যোগ করুন"}
                 </Button>
                 <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>

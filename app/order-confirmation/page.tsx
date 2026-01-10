@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Package } from "lucide-react"
+import { CheckCircle2, Package, MessageCircle } from "lucide-react"
 import Link from "next/link"
 
 function OrderConfirmationContent() {
@@ -17,8 +17,8 @@ function OrderConfirmationContent() {
         <div className="min-h-screen bg-gradient-to-b from-background to-rose-50/20">
             <Header />
 
-            <main className="container py-12">
-                <div className="max-w-2xl mx-auto">
+            <main className="container mx-auto flex flex-col items-center justify-center min-h-[calc(100vh-80px)] py-12">
+                <div className="w-full max-w-2xl px-4 ">
                     {/* Success Message */}
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
@@ -66,7 +66,6 @@ function OrderConfirmationContent() {
                                 <li>• আমরা শীঘ্রই আপনার অর্ডার কনফার্ম করব</li>
                                 <li>• আপনার ফোন নম্বরে যোগাযোগ করা হবে</li>
                                 <li>• পণ্য ডেলিভারির সময় পেমেন্ট করবেন</li>
-                                <li>• লগইন করে আপনার অর্ডার ট্র্যাক করতে পারবেন</li>
                             </ul>
                         </CardContent>
                     </Card>
@@ -76,13 +75,20 @@ function OrderConfirmationContent() {
                         <Button asChild className="flex-1 rounded-full h-12">
                             <Link href="/shop">আরো কেনাকাটা করুন</Link>
                         </Button>
-                        <Button asChild variant="outline" className="flex-1 rounded-full h-12">
-                            <Link href="/sign-in">লগইন করুন</Link>
+                        <Button
+                            className="flex-1 rounded-full h-12 bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => {
+                                const message = `আমি অর্ডার করেছি। অর্ডার নম্বর: ${orderNumber}। দয়া করে কনফার্ম করুন।`
+                                window.open(`https://wa.me/+8801751922148?text=${encodeURIComponent(message)}`, '_blank')
+                            }}
+                        >
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            WhatsApp-এ কনফার্ম করুন
                         </Button>
                     </div>
 
                     <p className="text-center text-sm text-muted-foreground mt-6">
-                        লগইন করে <Link href="/orders" className="text-primary hover:underline">আমার অর্ডার</Link> পেজে আপনার অর্ডার ট্র্যাক করতে পারবেন।
+                        আপনার অর্ডার নম্বরটি সংরক্ষণ করুন: <span className="font-semibold text-foreground">{orderNumber}</span>
                     </p>
                 </div>
             </main>

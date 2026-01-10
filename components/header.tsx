@@ -105,51 +105,7 @@ export function Header() {
                         </Button>
                     </Link>
 
-                    {user ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="rounded-full overflow-hidden">
-                                    {user.photoURL || user.displayName ? (
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={user.photoURL || ""} alt={user.displayName || "User"} className="object-cover" />
-                                            <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                                                {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    ) : (
-                                        <div className="h-8 w-8 bg-muted flex items-center justify-center text-muted-foreground">
-                                            <User className="h-4 w-4" />
-                                        </div>
-                                    )}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                                <div className="flex items-center justify-start gap-2 p-2">
-                                    <div className="flex flex-col space-y-1 leading-none">
-                                        <p className="font-medium">{user.displayName}</p>
-                                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                                    </div>
-                                </div>
-
-                                <DropdownMenuItem asChild>
-                                    <Link href="/orders" className="cursor-pointer">
-                                        <Package className="h-4 w-4 mr-2" />
-                                        আমার অর্ডার
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => signOut()} className="text-red-500 focus:text-red-500">
-                                    <LogOut className="h-4 w-4 mr-2" />
-                                    লগ আউট
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground">
-                            <Link href="/sign-in">
-                                <User className="h-5 w-5" />
-                            </Link>
-                        </Button>
-                    )}
+                    {/* User icon removed as requested */}
                 </div>
             </div>
         </header>

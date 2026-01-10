@@ -4,6 +4,7 @@ import type { Product } from "@/types"
 import { Eye, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AddToCartButton } from "@/components/add-to-cart-button"
+import { QuickOrderButton } from "@/components/quick-order-button"
 
 interface ProductCardProps {
     product: Product
@@ -28,7 +29,18 @@ export function ProductCard({ product }: ProductCardProps) {
                 )}
 
                 {/* Overlay Actions */}
-                <div className="absolute inset-x-0 bottom-4 px-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex gap-2 justify-center">
+                <div className="absolute inset-x-0 bottom-4 px-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2 justify-center">
+                    <QuickOrderButton
+                        product={{
+                            id: product.id,
+                            name: product.name,
+                            price: Number(product.price),
+                            image_url: product.image_url || "",
+                        }}
+                        size="sm"
+                        className="w-full shadow-sm backdrop-blur-sm bg-primary text-primary-foreground hover:bg-primary/90"
+                        showIcon={true}
+                    />
                     <AddToCartButton
                         product={{
                             id: product.id,
@@ -38,7 +50,7 @@ export function ProductCard({ product }: ProductCardProps) {
                         }}
                         size="sm"
                         className="w-full bg-white text-black hover:bg-white/90 shadow-sm backdrop-blur-sm"
-                        text="কার্টে যোগ করুন" // "Add to Cart"
+                        text="কার্টে যোগ করুন"
                         showIcon={true}
                     />
                 </div>

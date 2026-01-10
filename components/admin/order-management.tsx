@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, RefreshCw } from "lucide-react"
+import Swal from "sweetalert2"
 
 export function OrderManagement() {
     const [orders, setOrders] = useState<OrderWithItems[]>([])
@@ -47,7 +48,10 @@ export function OrderManagement() {
         fetchOrders()
     }, [statusFilter])
 
+    const [isUpdating, setIsUpdating] = useState(false)
+
     const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+        setIsUpdating(true)
         try {
             const response = await fetch(`/api/orders/${orderId}/status`, {
                 method: "PATCH",
@@ -58,39 +62,61 @@ export function OrderManagement() {
             })
 
             if (response.ok) {
-                // Refresh orders
-                await fetchOrders()
-
-                // Update selected order if it's the one being updated
+                // Update selected order immediately for UI responsiveness
                 if (selectedOrder?.id === orderId) {
-                    const updatedOrder = orders.find(o => o.id === orderId)
-                    if (updatedOrder) {
-                        setSelectedOrder({ ...updatedOrder, status: newStatus as any })
-                    }
+                    setSelectedOrder(prev => prev ? ({ ...prev, status: newStatus as any }) : null)
                 }
+
+                // Refresh orders list in background
+                await fetchOrders()
             }
         } catch (error) {
             console.error("Failed to update order status:", error)
+        } finally {
+            setIsUpdating(false)
         }
     }
 
+    const [isDeleting, setIsDeleting] = useState(false)
+
     const handleOrderDelete = async (orderId: string) => {
+        setIsDeleting(true)
         try {
             const response = await fetch(`/api/orders/${orderId}`, {
                 method: "DELETE",
             })
 
             if (response.ok) {
+                Swal.fire({
+                    title: "সফল!",
+                    text: "অর্ডারটি ডিলিট করা হয়েছে",
+                    icon: "success",
+                    confirmButtonColor: "#e11d48",
+                    timer: 2000,
+                    timerProgressBar: true
+                })
                 // Refresh orders
                 await fetchOrders()
                 // Deselect order
                 setSelectedOrder(null)
             } else {
-                alert("Failed to delete order")
+                Swal.fire({
+                    title: "ব্যর্থ",
+                    text: "অর্ডার ডিলিট করা সম্ভব হয়নি",
+                    icon: "error",
+                    confirmButtonColor: "#e11d48",
+                })
             }
         } catch (error) {
             console.error("Failed to delete order:", error)
-            alert("Error deleting order")
+            Swal.fire({
+                title: "ব্যর্থ",
+                text: "অর্ডার ডিলিট করার সময় একটি সমস্যা হয়েছে",
+                icon: "error",
+                confirmButtonColor: "#e11d48",
+            })
+        } finally {
+            setIsDeleting(false)
         }
     }
 
@@ -160,10 +186,12 @@ export function OrderManagement() {
 
                 <div className="lg:col-span-5">
                     {selectedOrder ? (
-                         <OrderDetails
+                        <OrderDetails
                             order={selectedOrder}
                             onStatusUpdate={handleStatusUpdate}
                             onDelete={handleOrderDelete}
+                            isUpdating={isUpdating}
+                            isDeleting={isDeleting}
                         />
                     ) : (
                         <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
