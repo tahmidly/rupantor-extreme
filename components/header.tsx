@@ -44,7 +44,7 @@ export function Header() {
                             <div className="flex flex-col h-full bg-background">
                                 <div className="p-6 border-b">
                                     <Link href="/" className="flex items-center gap-2">
-                                        <Image src="/logo2.webp" alt="রূপান্তর" width={160} height={80} className="h-28 w-96 object-contain" />
+                                        <Image src="/logo2.jpeg" alt="রূপান্তর" width={160} height={80} className="h-28 w-96 object-contain" />
                                     </Link>
                                 </div>
                                 <nav className="flex-1 overflow-y-auto p-6 flex flex-col gap-2">
@@ -60,7 +60,7 @@ export function Header() {
                     </Sheet>
 
                     <Link href="/" className="flex items-center gap-2">
-                        <Image src="/logo2.webp" alt="রূপান্তর" width={160} height={80} className="h-20 w-auto object-contain" />
+                        <Image src="/logo2.jpeg" alt="রূপান্তর" width={160} height={80} className="h-20 w-auto object-contain" />
                     </Link>
 
                     {/* Desktop Nav */}

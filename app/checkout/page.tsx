@@ -257,18 +257,40 @@ export default function CheckoutPage() {
 
                                     <div className="space-y-2">
                                         <Label>ডেলিভারি এলাকা <span className="text-red-500">*</span></Label>
-                                        <Select
-                                            value={shippingCost.toString()}
-                                            onValueChange={(val) => setShippingCost(parseInt(val))}
-                                        >
-                                            <SelectTrigger className="w-full h-11 border-2">
-                                                <SelectValue placeholder="ডেলিভারি এরিয়া সিলেক্ট করুন" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="70">ঢাকার ভিতরে (৳৭০)</SelectItem>
-                                                <SelectItem value="120">ঢাকার বাইরে (৳১২০)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div
+                                                onClick={() => setShippingCost(70)}
+                                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${shippingCost === 70 ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-muted hover:border-primary/40 bg-card"}`}
+                                            >
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${shippingCost === 70 ? "border-primary bg-primary" : "border-muted-foreground/30"}`}>
+                                                    {shippingCost === 70 && (
+                                                        <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="font-bold text-lg">ঢাকার ভিতরে</p>
+                                                    <p className="text-sm font-medium text-muted-foreground mt-0.5">৳৭০ ডেলিভারি চার্জ</p>
+                                                </div>
+                                            </div>
+                                            <div
+                                                onClick={() => setShippingCost(120)}
+                                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${shippingCost === 120 ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-muted hover:border-primary/40 bg-card"}`}
+                                            >
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${shippingCost === 120 ? "border-primary bg-primary" : "border-muted-foreground/30"}`}>
+                                                    {shippingCost === 120 && (
+                                                        <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="font-bold text-lg">ঢাকার বাইরে</p>
+                                                    <p className="text-sm font-medium text-muted-foreground mt-0.5">৳১২০ ডেলিভারি চার্জ</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

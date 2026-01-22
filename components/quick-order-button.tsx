@@ -198,18 +198,40 @@ export function QuickOrderButton({
 
                     <div className="grid gap-2">
                         <Label>ডেলিভারি এরিয়া</Label>
-                        <Select
-                            value={formData.shippingCost.toString()}
-                            onValueChange={(val) => setFormData({ ...formData, shippingCost: parseInt(val) })}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="ডেলিভারি এরিয়া সিলেক্ট করুন" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="70">ঢাকার ভিতরে (৳৭০)</SelectItem>
-                                <SelectItem value="120">ঢাকার বাইরে (৳১২০)</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div
+                                onClick={() => setFormData({ ...formData, shippingCost: 70 })}
+                                className={`p-3 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 ${formData.shippingCost === 70 ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-muted hover:border-primary/40 bg-card"}`}
+                            >
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${formData.shippingCost === 70 ? "border-primary bg-primary" : "border-muted-foreground/30"}`}>
+                                    {formData.shippingCost === 70 && (
+                                        <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <div className="text-center">
+                                    <p className="font-bold text-sm">ঢাকার ভিতরে</p>
+                                    <p className="text-[11px] font-medium text-muted-foreground">৳৭০ Charge</p>
+                                </div>
+                            </div>
+                            <div
+                                onClick={() => setFormData({ ...formData, shippingCost: 120 })}
+                                className={`p-3 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 ${formData.shippingCost === 120 ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-muted hover:border-primary/40 bg-card"}`}
+                            >
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${formData.shippingCost === 120 ? "border-primary bg-primary" : "border-muted-foreground/30"}`}>
+                                    {formData.shippingCost === 120 && (
+                                        <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <div className="text-center">
+                                    <p className="font-bold text-sm">ঢাকার বাইরে</p>
+                                    <p className="text-[11px] font-medium text-muted-foreground">৳১২০ Charge</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid gap-2">
